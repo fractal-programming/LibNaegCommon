@@ -145,7 +145,7 @@ public:
 
 			std::cout << std::setw(7) << " ";
 			std::cout << std::setw(30) << std::left << tmp;
-			std::cout << (*it)->getDescription() << std::endl;
+			std::cout << pArg->getDescription() << std::endl;
 		}
 		std::cout << std::endl;
 
