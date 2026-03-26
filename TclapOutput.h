@@ -165,7 +165,22 @@ private:
 
 	void descriptionPrint(const std::string &desc)
 	{
-		std::cout << desc << std::endl;
+		size_t posStart = 0;
+		size_t posEnd;
+
+		while ((posEnd = desc.find('\n', posStart)) != std::string::npos)
+		{
+			if (posStart) std::cout << std::setw(37) << " ";
+			std::cout << desc.substr(posStart, posEnd - posStart) << std::endl;
+
+			posStart = posEnd + 1;
+		}
+
+		if (posStart > desc.size())
+			return;
+
+		if (posStart) std::cout << std::setw(37) << " ";
+		std::cout << desc.substr(posStart) << std::endl;
 	}
 
 	virtual void printAppCommands()
