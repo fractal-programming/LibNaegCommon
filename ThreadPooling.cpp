@@ -334,6 +334,11 @@ ssize_t ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
 	return ppPoolRequests.commit(req);
 }
 
+bool ThreadPooling::queueReqFull()
+{
+	return ppPoolRequests.isFull();
+}
+
 void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)
 {
 #if 0
