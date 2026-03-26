@@ -323,7 +323,7 @@ void ThreadPooling::procInternalAdd(Processing *pProc)
 	++mNumProcessing;
 }
 
-void ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
+ssize_t ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
 {
 	PoolRequest req;
 
@@ -331,7 +331,7 @@ void ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
 	req.idDriverDesired = idDriver;
 
 	//dbgLog("adding proc %p to queue", pProc);
-	ppPoolRequests.commit(req);
+	return ppPoolRequests.commit(req);
 }
 
 void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)

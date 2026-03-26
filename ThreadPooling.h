@@ -54,7 +54,7 @@ public:
 	void cntWorkerSet(uint16_t cnt);
 	void driverCreateSet(FuncDriverPoolCreate pFctDriverCreate);
 
-	static void procAdd(Processing *pProc, int32_t idDriver = -1);
+	static ssize_t procAdd(Processing *pProc, int32_t idDriver = -1);
 
 protected:
 
