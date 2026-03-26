@@ -82,7 +82,7 @@ public:
 			std::cout << std::setw(35) << std::left << tmp;
 			tmp = pArg->getDescription();
 			tmp.erase(0, 12);
-			std::cout << tmp << std::endl;
+			descriptionPrint(tmp);
 			reqPrinted = true;
 		}
 
@@ -102,7 +102,7 @@ public:
 			std::cout << std::setw(30) << std::left << tmp;
 			tmp = pArg->getDescription();
 			tmp.erase(0, 12);
-			std::cout << tmp << std::endl;
+			descriptionPrint(tmp);
 			reqPrinted = true;
 		}
 
@@ -128,7 +128,7 @@ public:
 			tmp.erase(2, tmp.find(",") - 2);
 			std::cout << std::setw(2) << " ";
 			std::cout << std::setw(35) << std::left << tmp;
-			std::cout << pArg->getDescription() << std::endl;
+			descriptionPrint(pArg->getDescription());
 		}
 
 		// Optional without alias
@@ -145,7 +145,7 @@ public:
 
 			std::cout << std::setw(7) << " ";
 			std::cout << std::setw(30) << std::left << tmp;
-			std::cout << pArg->getDescription() << std::endl;
+			descriptionPrint(pArg->getDescription());
 		}
 		std::cout << std::endl;
 
@@ -162,6 +162,11 @@ public:
 	}
 
 private:
+
+	void descriptionPrint(const std::string &desc)
+	{
+		std::cout << desc << std::endl;
+	}
 
 	virtual void printAppCommands()
 	{
