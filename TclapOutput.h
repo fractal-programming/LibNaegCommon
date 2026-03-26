@@ -63,29 +63,47 @@ public:
 		std::cout << "Required" << std::endl;
 		std::cout << std::endl;
 
-		std::list<TCLAP::Arg*> args = c.getArgList();
-		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
-			tmp = (*it)->longID();
-			if ((*it)->isRequired() && tmp.find(",") != std::string::npos) {
-				tmp.erase(2, tmp.find(",") - 2);
-				std::cout << std::setw(2) << " ";
-				std::cout << std::setw(35) << std::left << tmp;
-				tmp = (*it)->getDescription();
-				tmp.erase(0, 12);
-				std::cout << tmp << std::endl;
-				reqPrinted = true;
-			}
+		std::list<TCLAP::Arg *> args = c.getArgList();
+
+		// Required with alias
+		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); ++it)
+		{
+			TCLAP::Arg *pArg = *it;
+
+			if (!pArg->isRequired())
+				continue;
+
+			tmp = pArg->longID();
+			if (tmp.find(",") == std::string::npos)
+				continue;
+
+			tmp.erase(2, tmp.find(",") - 2);
+			std::cout << std::setw(2) << " ";
+			std::cout << std::setw(35) << std::left << tmp;
+			tmp = pArg->getDescription();
+			tmp.erase(0, 12);
+			std::cout << tmp << std::endl;
+			reqPrinted = true;
 		}
-		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
-			tmp = (*it)->longID();
-			if ((*it)->isRequired() && tmp.find(",") == std::string::npos) {
-				std::cout << std::setw(7) << " ";
-				std::cout << std::setw(30) << std::left << tmp;
-				tmp = (*it)->getDescription();
-				tmp.erase(0, 12);
-				std::cout << tmp << std::endl;
-				reqPrinted = true;
-			}
+
+		// Required without alias
+		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); ++it)
+		{
+			TCLAP::Arg *pArg = *it;
+
+			if (!pArg->isRequired())
+				continue;
+
+			tmp = pArg->longID();
+			if (tmp.find(",") != std::string::npos)
+				continue;
+
+			std::cout << std::setw(7) << " ";
+			std::cout << std::setw(30) << std::left << tmp;
+			tmp = pArg->getDescription();
+			tmp.erase(0, 12);
+			std::cout << tmp << std::endl;
+			reqPrinted = true;
 		}
 
 		if (!reqPrinted)
@@ -95,22 +113,39 @@ public:
 		std::cout << "Optional" << std::endl;
 		std::cout << std::endl;
 
-		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
-			tmp = (*it)->longID();
-			if (!(*it)->isRequired() && tmp.find(",") != std::string::npos) {
-				tmp.erase(2, tmp.find(",") - 2);
-				std::cout << std::setw(2) << " ";
-				std::cout << std::setw(35) << std::left << tmp;
-				std::cout << (*it)->getDescription() << std::endl;
-			}
+		// Optional with alias
+		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); ++it)
+		{
+			TCLAP::Arg *pArg = *it;
+
+			if (pArg->isRequired())
+				continue;
+
+			tmp = pArg->longID();
+			if (tmp.find(",") == std::string::npos)
+				continue;
+
+			tmp.erase(2, tmp.find(",") - 2);
+			std::cout << std::setw(2) << " ";
+			std::cout << std::setw(35) << std::left << tmp;
+			std::cout << pArg->getDescription() << std::endl;
 		}
-		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); it++) {
-			tmp = (*it)->longID();
-			if (!(*it)->isRequired() && tmp.find(",") == std::string::npos) {
-				std::cout << std::setw(7) << " ";
-				std::cout << std::setw(30) << std::left << tmp;
-				std::cout << (*it)->getDescription() << std::endl;
-			}
+
+		// Optional without alias
+		for (TCLAP::ArgListIterator it = args.begin(); it != args.end(); ++it)
+		{
+			TCLAP::Arg *pArg = *it;
+
+			if (pArg->isRequired())
+				continue;
+
+			tmp = pArg->longID();
+			if (tmp.find(",") != std::string::npos)
+				continue;
+
+			std::cout << std::setw(7) << " ";
+			std::cout << std::setw(30) << std::left << tmp;
+			std::cout << (*it)->getDescription() << std::endl;
 		}
 		std::cout << std::endl;
 
