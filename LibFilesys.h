@@ -67,8 +67,8 @@ void fdClose(int &fd, bool deInit = true);
 
 bool fileExists(const std::string &path);
 bool fileCreate(const std::string &path);
-TimePoint tpFileCreated(const std::string &path);
-TimePoint tpFileModified(const std::string &path);
+bool tpFileCreated(const std::string &path, TimePoint &tp);
+bool tpFileModified(const std::string &path, TimePoint &tp);
 #endif
 void filesStdClose();
 

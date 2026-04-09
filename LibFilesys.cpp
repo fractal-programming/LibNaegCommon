@@ -243,36 +243,38 @@ bool fileCreate(const string &path)
  * Literature
  * - https://man7.org/linux/man-pages/man2/lstat.2.html
  */
-TimePoint tpFileCreated(const string &path)
+bool tpFileCreated(const string &path, TimePoint &tp)
 {
 	struct stat st = {};
-	TimePoint tp;
 	int res;
 
 	res = stat(path.c_str(), &st);
 	if (res)
-		return tp;
+		return false;
 
-	return TimePoint(seconds(st.st_ctim.tv_sec) +
+	tp = TimePoint(seconds(st.st_ctim.tv_sec) +
 			nanoseconds(st.st_ctim.tv_nsec));
+
+	return true;
 }
 
 /*
  * Literature
  * - https://man7.org/linux/man-pages/man2/lstat.2.html
  */
-TimePoint tpFileModified(const string &path)
+bool tpFileModified(const string &path, TimePoint &tp)
 {
 	struct stat st = {};
-	TimePoint tp;
 	int res;
 
 	res = stat(path.c_str(), &st);
 	if (res)
-		return tp;
+		return false;
 
-	return TimePoint(seconds(st.st_mtim.tv_sec) +
+	tp = TimePoint(seconds(st.st_mtim.tv_sec) +
 			nanoseconds(st.st_mtim.tv_nsec));
+
+	return true;
 }
 #endif
 
