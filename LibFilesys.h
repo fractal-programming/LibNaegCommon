@@ -36,6 +36,7 @@
 #endif
 
 #include "Processing.h"
+#include "LibTime.h"
 
 struct UserLock
 {
@@ -66,6 +67,8 @@ void fdClose(int &fd, bool deInit = true);
 
 bool fileExists(const std::string &path);
 bool fileCreate(const std::string &path);
+TimePoint tpFileCreated(const std::string &path);
+TimePoint tpFileModified(const std::string &path);
 #endif
 void filesStdClose();
 

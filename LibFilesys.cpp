@@ -44,6 +44,7 @@
 #include "LibFilesys.h"
 
 using namespace std;
+using namespace chrono;
 
 #if defined(__unix__)
 struct GlobalLock
@@ -236,6 +237,42 @@ bool fileCreate(const string &path)
 	fclose(pFile);
 
 	return true;
+}
+
+/*
+ * Literature
+ * - https://man7.org/linux/man-pages/man2/lstat.2.html
+ */
+TimePoint tpFileCreated(const string &path)
+{
+	struct stat st = {};
+	TimePoint tp;
+	int res;
+
+	res = stat(path.c_str(), &st);
+	if (res)
+		return tp;
+
+	return TimePoint(seconds(st.st_ctim.tv_sec) +
+			nanoseconds(st.st_ctim.tv_nsec));
+}
+
+/*
+ * Literature
+ * - https://man7.org/linux/man-pages/man2/lstat.2.html
+ */
+TimePoint tpFileModified(const string &path)
+{
+	struct stat st = {};
+	TimePoint tp;
+	int res;
+
+	res = stat(path.c_str(), &st);
+	if (res)
+		return tp;
+
+	return TimePoint(seconds(st.st_mtim.tv_sec) +
+			nanoseconds(st.st_mtim.tv_nsec));
 }
 #endif
 
