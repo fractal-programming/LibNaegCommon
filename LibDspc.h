@@ -199,7 +199,7 @@ advance2(Iterator& it, Iterator end, Distance n)
 template<typename T, typename V>
 V lerp(T t, V a, V b)
 {
-    return a + static_cast<V>((b - a) * t);
+	return a + static_cast<V>((b - a) * t);
 }
 
 #endif
