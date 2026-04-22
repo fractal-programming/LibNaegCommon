@@ -56,11 +56,11 @@ using namespace std;
 mutex ThreadPooling::mtxBroker;
 bool ThreadPooling::brokerPresent = false;
 Pipe<PoolRequest> ThreadPooling::ppPoolRequests;
+uint16_t ThreadPooling::cntInternals = 1;
 
 ThreadPooling::ThreadPooling()
 	: Processing("ThreadPooling")
 	, mStateSd(StSdStart)
-	, mCntInternals(1)
 	, mpFctDriverCreate(NULL)
 	, mIsInternal(false)
 	, mNumProcessing(0)
@@ -74,7 +74,8 @@ ThreadPooling::ThreadPooling()
 
 void ThreadPooling::cntWorkerSet(uint16_t cnt)
 {
-	mCntInternals = cnt;
+	Guard lock(mtxBroker);
+	cntInternals = cnt;
 }
 
 void ThreadPooling::driverCreateSet(FuncDriverPoolCreate pFctDriverCreate)
@@ -84,26 +85,13 @@ void ThreadPooling::driverCreateSet(FuncDriverPoolCreate pFctDriverCreate)
 
 Success ThreadPooling::process()
 {
-	//Success success;
+	Success success;
 #if 0
 	dStateTrace;
 #endif
 	switch (mState)
 	{
 	case StStart:
-
-		{
-			Guard lock(mtxBroker);
-
-			if (!mIsInternal && brokerPresent)
-			{
-				procDbgLog("thread pool running already");
-				return -1;
-			}
-
-			if (!mIsInternal)
-				brokerPresent = true;
-		}
 
 		if (mIsInternal)
 		{
@@ -116,30 +104,9 @@ Success ThreadPooling::process()
 		break;
 	case StBrokerStart:
 
-		if (!mCntInternals)
-			return procErrLog(-1, "no workers configured");
-
-		mVecInternals.reserve(mCntInternals);
-
-		for (uint16_t i = 0; i < mCntInternals; ++i)
-		{
-			ThreadPooling *pInternal;
-
-			pInternal = ThreadPooling::create();
-			if (!pInternal)
-				return procErrLog(-1, "could not create thread pool worker");
-
-			pInternal->mIsInternal = true;
-			mVecInternals.push_back(pInternal);
-
-			if (mpFctDriverCreate)
-			{
-				start(pInternal, DrivenByExternalDriver);
-				mpFctDriverCreate(pInternal, i);
-			}
-			else
-				start(pInternal, DrivenByNewInternalDriver);
-		}
+		success = brokerStart();
+		if (success != Positive)
+			return procErrLog(-1, "could not start thread pool broker");
 
 		mState = StBrokerMain;
 
@@ -164,6 +131,45 @@ Success ThreadPooling::process()
 	}
 
 	return Pending;
+}
+
+Success ThreadPooling::brokerStart()
+{
+	Guard lock(mtxBroker);
+
+	if (brokerPresent)
+		return procErrLog(-1, "thread pool running already");
+
+	if (!cntInternals)
+		return procErrLog(-1, "no workers configured");
+
+	mVecInternals.clear();
+	mVecInternals.reserve(cntInternals);
+
+	for (uint16_t i = 0; i < cntInternals; ++i)
+	{
+		ThreadPooling *pInternal;
+
+		pInternal = ThreadPooling::create();
+		if (!pInternal)
+			return procErrLog(-1, "could not create thread pool worker");
+
+		pInternal->mIsInternal = true;
+		mVecInternals.push_back(pInternal);
+
+		if (!mpFctDriverCreate)
+		{
+			start(pInternal, DrivenByNewInternalDriver);
+			continue;
+		}
+
+		start(pInternal, DrivenByExternalDriver);
+		mpFctDriverCreate(pInternal, i);
+	}
+
+	brokerPresent = true;
+
+	return Positive;
 }
 
 Success ThreadPooling::shutdown()
@@ -241,7 +247,7 @@ void ThreadPooling::poolRequestsProcess()
 
 		//procDbgLog("pool request received");
 
-		if (req.idDriverDesired >= 0 && req.idDriverDesired < mCntInternals)
+		if (req.idDriverDesired >= 0 && req.idDriverDesired < cntInternals)
 			idDriver = (size_t)req.idDriverDesired;
 		else
 			idDriver = idDriverNextGet();
@@ -323,6 +329,33 @@ void ThreadPooling::procInternalAdd(Processing *pProc)
 	++mNumProcessing;
 }
 
+void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)
+{
+#if 0
+	dInfo("State\t\t\t%s\n", ProcStateString[mState]);
+	dInfo("State shutdown\t\t%s\n", SdStateString[mStateSd]);
+#endif
+	if (!mIsInternal)
+		return;
+
+	dInfo("Processing\t\t%zu\n", mNumProcessing);
+	//dInfo("Finished\t\t%zu\n", mNumFinished);
+}
+
+/* static functions */
+
+bool ThreadPooling::present()
+{
+	Guard lock(mtxBroker);
+	return brokerPresent;
+}
+
+uint16_t ThreadPooling::cntWorkerGet()
+{
+	Guard lock(mtxBroker);
+	return cntInternals;
+}
+
 ssize_t ThreadPooling::procAdd(Processing *pProc, int32_t idDriver)
 {
 	PoolRequest req;
@@ -338,19 +371,4 @@ bool ThreadPooling::queueReqFull()
 {
 	return ppPoolRequests.isFull();
 }
-
-void ThreadPooling::processInfo(char *pBuf, char *pBufEnd)
-{
-#if 0
-	dInfo("State\t\t\t%s\n", ProcStateString[mState]);
-	dInfo("State shutdown\t\t%s\n", SdStateString[mStateSd]);
-#endif
-	if (!mIsInternal)
-		return;
-
-	dInfo("Processing\t\t%zu\n", mNumProcessing);
-	//dInfo("Finished\t\t%zu\n", mNumFinished);
-}
-
-/* static functions */
 

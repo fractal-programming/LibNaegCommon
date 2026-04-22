@@ -54,6 +54,8 @@ public:
 	void cntWorkerSet(uint16_t cnt);
 	void driverCreateSet(FuncDriverPoolCreate pFctDriverCreate);
 
+	static bool present();
+	static uint16_t cntWorkerGet();
 	static ssize_t procAdd(Processing *pProc, int32_t idDriver = -1);
 	static bool queueReqFull();
 
@@ -77,6 +79,8 @@ private:
 	Success shutdown();
 	void processInfo(char *pBuf, char *pBufEnd);
 
+	Success brokerStart();
+
 	void poolRequestsProcess();
 	void procsDrive();
 	size_t idDriverNextGet();
@@ -87,7 +91,6 @@ private:
 	uint32_t mStateSd;
 
 	// Broker
-	uint16_t mCntInternals;
 	std::vector<ThreadPooling *> mVecInternals;
 	FuncDriverPoolCreate mpFctDriverCreate;
 
@@ -105,6 +108,7 @@ private:
 	static std::mutex mtxBroker;
 	static bool brokerPresent;
 	static Pipe<PoolRequest> ppPoolRequests;
+	static uint16_t cntInternals;
 
 	/* constants */
 
