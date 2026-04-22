@@ -350,9 +350,13 @@ bool ThreadPooling::present()
 	return brokerPresent;
 }
 
-uint16_t ThreadPooling::cntWorkerGet()
+uint16_t ThreadPooling::cntWorkerActive()
 {
 	Guard lock(mtxBroker);
+
+	if (!brokerPresent)
+		return 0;
+
 	return cntInternals;
 }
 

@@ -55,7 +55,7 @@ public:
 	void driverCreateSet(FuncDriverPoolCreate pFctDriverCreate);
 
 	static bool present();
-	static uint16_t cntWorkerGet();
+	static uint16_t cntWorkerActive();
 	static ssize_t procAdd(Processing *pProc, int32_t idDriver = -1);
 	static bool queueReqFull();
 
