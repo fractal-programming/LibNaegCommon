@@ -69,6 +69,18 @@ bool fileExists(const std::string &path);
 bool fileCreate(const std::string &path);
 bool tpFileCreated(const std::string &path, TimePoint &tp);
 bool tpFileModified(const std::string &path, TimePoint &tp);
+
+struct FileMapped
+{
+	int fd;
+	size_t size;
+	char *pData;
+	bool isWrite;
+};
+
+FileMapped fileMappedRead(const std::string &path, size_t sz = 0);
+FileMapped fileMappedWrite(const std::string &path, size_t sz);
+void fileMappedClose(FileMapped &fm);
 #endif
 void filesStdClose();
 

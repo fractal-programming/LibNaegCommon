@@ -31,6 +31,9 @@
 #include <string.h>
 
 #if defined(__unix__)
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <signal.h>
 #endif
 #if defined(__linux__)
@@ -275,6 +278,126 @@ bool tpFileModified(const string &path, TimePoint &tp)
 			nanoseconds(st.st_mtim.tv_nsec));
 
 	return true;
+}
+
+/*
+ * Literature
+ * - https://man7.org/linux/man-pages/man3/fstat.3p.html
+ * - https://man7.org/linux/man-pages/man2/mmap.2.html
+ * - https://man7.org/linux/man-pages/man2/munmap.2.html
+ */
+FileMapped fileMappedRead(const std::string &path, size_t sz)
+{
+	FileMapped fm;
+	char *pData;
+	int fd, res;
+
+	fm.fd = -1;
+	fm.size = 0;
+	fm.pData = NULL;
+	fm.isWrite = false;
+
+	// Open
+
+	fd = open(path.c_str(), O_RDONLY);
+	if (fd < 0)
+		return fm;
+
+	// Map
+
+	if (!sz)
+	{
+		struct stat sb;
+
+		res = fstat(fd, &sb);
+		if (res < 0)
+		{
+			close(fd);
+			return fm;
+		}
+
+		sz = sb.st_size;
+	}
+
+	pData = (char *)mmap(nullptr, sz, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (pData == MAP_FAILED)
+	{
+		close(fd);
+		return fm;
+	}
+
+	fm.fd = fd;
+	fm.size = sz;
+	fm.pData = pData;
+
+	//dbgLog("File size           %zu", sz);
+
+	return fm;
+}
+
+FileMapped fileMappedWrite(const std::string &path, size_t sz)
+{
+	FileMapped fm;
+	char *pData;
+	int fd, res;
+
+	fm.fd = -1;
+	fm.size = 0;
+	fm.pData = NULL;
+	fm.isWrite = true;
+
+	// Open
+
+	fd = open(path.c_str(),
+					/* flags */
+					O_CREAT | O_RDWR,
+					/* mode */
+					S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	if (fd < 0)
+		return fm;
+
+	// Truncate
+
+	res = ftruncate(fd, sz);
+	if (res < 0)
+	{
+		close(fd);
+		return fm;
+	}
+
+	// Map
+
+	pData = (char *)mmap(nullptr, sz, PROT_WRITE, MAP_SHARED, fd, 0);
+	if (pData == MAP_FAILED)
+	{
+		close(fd);
+		return fm;
+	}
+
+	fm.fd = fd;
+	fm.size = sz;
+	fm.pData = pData;
+
+	return fm;
+}
+
+void fileMappedClose(FileMapped &fm)
+{
+	if (fm.pData)
+	{
+		if (fm.isWrite)
+			msync(fm.pData, fm.size, MS_SYNC);
+
+		munmap(fm.pData, fm.size);
+		fm.pData = NULL;
+		fm.size = 0;
+	}
+
+	if (fm.fd >= 0)
+	{
+		close(fm.fd);
+		fm.fd = -1;
+	}
 }
 #endif
 
