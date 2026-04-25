@@ -119,7 +119,7 @@ bool rangesParse(const string &pattern, Ranges &ranges, size_t *pIdxErr)
 		if (ch == ',')
 		{
 			ok = caseDelimiter(isRange, r, num, ranges);
-			idxStart = i + 1;
+			if (ok) idxStart = i + 1;
 			isRange = false;
 		}
 		else
