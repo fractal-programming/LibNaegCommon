@@ -316,7 +316,7 @@ FileMapped fileMappedRead(const std::string &path, size_t sz)
 			return fm;
 		}
 
-		sz = sb.st_size;
+		sz = (size_t)sb.st_size;
 	}
 
 	pData = (char *)mmap(nullptr, sz, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -358,7 +358,7 @@ FileMapped fileMappedWrite(const std::string &path, size_t sz)
 
 	// Truncate
 
-	res = ftruncate(fd, sz);
+	res = ftruncate(fd, (off_t)sz);
 	if (res < 0)
 	{
 		close(fd);
