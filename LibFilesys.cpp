@@ -255,8 +255,9 @@ bool tpFileCreated(const string &path, TimePoint &tp)
 	if (res)
 		return false;
 
-	tp = TimePoint(seconds(st.st_ctim.tv_sec) +
-			nanoseconds(st.st_ctim.tv_nsec));
+	tp = TimePoint(duration_cast<TimePoint::duration>(
+			seconds(st.st_ctim.tv_sec) +
+			nanoseconds(st.st_ctim.tv_nsec)));
 
 	return true;
 }
@@ -274,8 +275,9 @@ bool tpFileModified(const string &path, TimePoint &tp)
 	if (res)
 		return false;
 
-	tp = TimePoint(seconds(st.st_mtim.tv_sec) +
-			nanoseconds(st.st_mtim.tv_nsec));
+	tp = TimePoint(duration_cast<TimePoint::duration>(
+			seconds(st.st_mtim.tv_sec) +
+			nanoseconds(st.st_mtim.tv_nsec)));
 
 	return true;
 }
