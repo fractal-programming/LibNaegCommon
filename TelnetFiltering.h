@@ -35,7 +35,7 @@ class TelnetFiltering : public KeyFiltering
 
 public:
 
-	static TelnetFiltering *create(int fd)
+	static TelnetFiltering *create(SOCKET fd)
 	{
 		return new (std::nothrow) TelnetFiltering(fd);
 	}
@@ -47,7 +47,7 @@ public:
 
 protected:
 
-	TelnetFiltering(int fd);
+	TelnetFiltering(SOCKET fd);
 	virtual ~TelnetFiltering() {}
 
 private:
@@ -80,7 +80,7 @@ private:
 	/* member variables */
 	uint32_t mStateKey;
 	uint32_t mStateKeyRet;
-	int mSocketFd;
+	SOCKET mSocketFd;
 	TcpTransfering *mpConn;
 #if CONFIG_PROC_HAVE_DRIVERS
 	std::mutex mMtxConn;

@@ -99,7 +99,7 @@ using namespace std;
 #define keyLineMode		0x22 // RFC1184
 #define keyEncrypt		0x26 // RFC2946
 
-TelnetFiltering::TelnetFiltering(int fd)
+TelnetFiltering::TelnetFiltering(SOCKET fd)
 	: KeyFiltering("TelnetFiltering")
 	, mStateKey(StKeyMain)
 	, mStateKeyRet(StKeyMain)
