@@ -229,7 +229,7 @@ public:
 #if KEY_USER_DEBUG
 		std::cout << "operator char():          mPrint = " << mPrint << std::endl;
 #endif
-		return mPrint;
+		return (char)mPrint;
 	}
 
 	operator char32_t() const

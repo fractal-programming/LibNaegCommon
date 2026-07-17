@@ -23,6 +23,7 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #include "KeyUser.h"
 
 using namespace std;
@@ -201,14 +202,26 @@ bool keyIsDownJump(const KeyUser &key)
 
 void strToUtf(const string &str, u32string &ustr)
 {
-	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
-	ustr = converter.from_bytes(str);
+	try
+	{
+		wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+		ustr = converter.from_bytes(str);
+	}
+	catch (...)
+	{
+	}
 }
 
 void utfToStr(const u32string &ustr, string &str)
 {
-	wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
-	str = converter.to_bytes(ustr);
+	try
+	{
+		wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+		str = converter.to_bytes(ustr);
+	}
+	catch (...)
+	{
+	}
 }
 
 void utfStrAdd(u32string &ustr, const string &str)
