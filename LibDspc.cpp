@@ -553,7 +553,7 @@ static bool isValidIp4(const string &ip)
 
 static bool isValidIp6(const string &ip)
 {
-	struct in_addr addr6;
+	struct in6_addr addr6;
 	return inet_pton(AF_INET6, ip.c_str(), &addr6) == 1;
 }
 
